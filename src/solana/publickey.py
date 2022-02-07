@@ -61,7 +61,10 @@ class PublicKey:
 
     def __str__(self) -> str:
         """String definition for PublicKey."""
-        return self.to_base58().decode("utf-8")
+        try:
+            return self.to_base58().decode("utf-8")
+        except AttributeError:
+            return self.to_base58()
 
     def to_base58(self) -> bytes:
         """Public key in base58."""
