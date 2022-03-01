@@ -10,7 +10,7 @@ except ImportError:
 
 from warnings import warn
 
-from base58 import b58decode, b58encode
+from based58 import b58decode, b58encode
 
 from solana.blockhash import Blockhash, BlockhashCache
 from solana.keypair import Keypair
@@ -94,6 +94,9 @@ class _ClientCore:  # pylint: disable=too-few-public-methods
     @staticmethod
     def _get_block_args(slot: int, encoding: str) -> Tuple[types.RPCMethod, int, str]:
         return types.RPCMethod("getBlock"), slot, encoding
+
+    def _get_block_height_args(self, commitment: Optional[Commitment]) -> Tuple[types.RPCMethod, Dict[str, Commitment]]:
+        return types.RPCMethod("getBlockHeight"), {self._comm_key: commitment or self._commitment}
 
     @staticmethod
     def _get_confirmed_blocks_args(start_slot: int, end_slot: Optional[int]) -> Tuple:
@@ -263,7 +266,7 @@ class _ClientCore:  # pylint: disable=too-few-public-methods
         base58_sigs: List[str] = []
         for sig in signatures:
             if isinstance(sig, str):
-                base58_sigs.append(b58encode(b58decode(sig)).decode("utf-8"))
+                base58_sigs.append(b58encode(b58decode(sig.encode("ascii"))).decode("utf-8"))
             else:
                 base58_sigs.append(b58encode(sig).decode("utf-8"))
 
@@ -390,11 +393,8 @@ class _ClientCore:  # pylint: disable=too-few-public-methods
         self, txn: Union[bytes, str, Transaction], sig_verify: bool, commitment: Optional[Commitment]
     ) -> Tuple[types.RPCMethod, str, Dict[str, Union[Commitment, bool, str]]]:
         if isinstance(txn, Transaction):
-            try:
-                b58decode(str(txn.recent_blockhash))
-            except Exception as err:
-                raise ValueError("transaction must have a valid blockhash") from err
-
+            if txn.recent_blockhash is None:
+                raise ValueError("transaction must have a valid blockhash")
             wire_format = b64encode(txn.serialize()).decode("utf-8")
         elif isinstance(txn, bytes):
             wire_format = txn.decode("utf-8")
