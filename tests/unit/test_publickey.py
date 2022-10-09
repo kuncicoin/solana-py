@@ -245,17 +245,19 @@ def test_find_program_address():
     assert program_address == PublicKey.create_program_address([bytes(), helpers.to_uint8_bytes(nonce)], program_id)
 
 
-def test_is_on_curve():
-    """Test on curve verify."""
-    on_curve = PublicKey("4fwsi7ei2vDcUByZWXV3YmMEyLwBnLamiuDzUrEKADnm")
-    assert PublicKey._is_on_curve(pubkey_bytes=bytes(on_curve))  # pylint: disable=protected-access
-
-    off_curve = PublicKey("12rqwuEgBYiGhBrDJStCiqEtzQpTTiZbh7teNVLuYcFA")
-    assert not PublicKey._is_on_curve(pubkey_bytes=bytes(off_curve))  # pylint: disable=protected-access
-
-
 def test_create_with_seed():
     """Test create with seed"""
     default_public_key = PublicKey("11111111111111111111111111111111")
     derived_key = PublicKey.create_with_seed(default_public_key, "limber chicken: 4/45", default_public_key)
     assert derived_key == PublicKey("9h1HyLCW5dZnBVap8C5egQ9Z6pHyjsh5MNy83iPqqRuq")
+
+
+def test_set_operations() -> None:
+    """Tests that a publickey is now hashable with the appropriate set operations."""
+    public_key_primary = PublicKey("11111111111111111111111111111111")
+    public_key_secondary = PublicKey("CiDwVBFgWV9E5MvXWoLgnEgn2hK7rJikbvfWavzAQz3")
+    public_key_duplicate = PublicKey("CiDwVBFgWV9E5MvXWoLgnEgn2hK7rJikbvfWavzAQz3")
+    public_key_set = {public_key_primary, public_key_secondary, public_key_duplicate}
+    assert public_key_primary.__hash__() != public_key_secondary.__hash__()
+    assert public_key_secondary.__hash__() == public_key_duplicate.__hash__()
+    assert len(public_key_set) == 2

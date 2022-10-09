@@ -7,7 +7,6 @@
 [![Actions
 Status](https://github.com/michaelhly/solanapy/workflows/CI/badge.svg)](https://github.com/michaelhly/solanapy/actions?query=workflow%3ACI)
 [![PyPI version](https://badge.fury.io/py/solana.svg)](https://badge.fury.io/py/solana)
-[![PyPI pyversions](https://img.shields.io/pypi/pyversions/solana)](https://pypi.org/project/solana/)
 [![Codecov](https://codecov.io/gh/michaelhly/solana-py/branch/master/graph/badge.svg)](https://codecov.io/gh/michaelhly/solana-py/branch/master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/michaelhly/solana-py/blob/master/LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -87,7 +86,7 @@ from asyncstdlib import enumerate
 from solana.rpc.websocket_api import connect
 
 async def main():
-    async with connect("ws://api.devnet.solana.com") as websocket:
+    async with connect("wss://api.devnet.solana.com") as websocket:
         await websocket.logs_subscribe()
         first_resp = await websocket.recv()
         subscription_id = first_resp.result
@@ -96,7 +95,7 @@ async def main():
         await websocket.logs_unsubscribe(subscription_id)
 
     # Alternatively, use the client as an infinite asynchronous iterator:
-    async with connect("ws://api.devnet.solana.com") as websocket:
+    async with connect("wss://api.devnet.solana.com") as websocket:
         await websocket.logs_subscribe()
         first_resp = await websocket.recv()
         subscription_id = first_resp.result
